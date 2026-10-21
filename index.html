@@ -5,230 +5,327 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>EMA — Estação de Monitoramento Ambiental</title>
 <style>
-:root {
-  --forest: #11261B;
-  --panel: #1E3A2A;
-  --panel-row: #24432F;
-  --line: #335643;
-  --mint: #BFE8A8;
-  --mint-dim: #8FBE86;
-  --bg: #F4F7F1;
-  --bg-blob: #DCEBD4;
-  --ink: #142019;
-  --muted: #5B6B60;
-  --red: #B4432F;
-}
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  min-height: 100%;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
-}
-body {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  position: relative;
-  overflow-x: hidden;
-}
-.blob {
-  position: absolute;
-  top: -60px;
-  right: -80px;
-  width: 320px;
-  height: 320px;
-  background: var(--bg-blob);
-  border-radius: 48% 52% 55% 45% / 50% 45% 55% 50%;
-  z-index: 0;
-}
-header {
-  position: relative;
-  z-index: 1;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 28px 20px 4px;
-}
-.eyebrow {
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-h1 {
-  margin: 0 0 6px;
-  font-size: 26px;
-  font-weight: 400;
-  color: var(--ink);
-}
-.sub {
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 13.5px;
-  color: var(--muted);
-  line-height: 1.5;
-  max-width: 50ch;
-}
-main {
-  position: relative;
-  z-index: 1;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 20px 20px 10px;
-}
-.panel {
-  background: var(--forest);
-  border-radius: 14px;
-  padding: 18px 18px 8px;
-}
-.panel-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 6px 16px;
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-}
-.status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--mint);
-  text-transform: uppercase;
-}
-.status .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--muted);
-}
-.status.live .dot { background: var(--mint); }
-.status.live .dot::after {
-  content: "";
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--mint);
-  opacity: 0.55;
-  animation: pulse 1.8s ease-out infinite;
-}
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.55; }
-  100% { transform: scale(2.6); opacity: 0; }
-}
-.source {
-  font-size: 12px;
-  color: var(--mint-dim);
-}
-.row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  background: var(--panel-row);
-  border-radius: 10px;
-  padding: 16px 18px;
-  margin-bottom: 10px;
-}
-.row .label {
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 14.5px;
-  color: #CFE0D4;
-  font-weight: 400;
-}
-.row .value {
-  font-size: 27px;
-  color: var(--mint);
-  font-weight: 400;
-  white-space: nowrap;
-}
-.row .value .unit {
-  font-size: 17px;
-  margin-left: 2px;
-  color: var(--mint-dim);
-}
-.row.stale .value {
-  color: var(--mint-dim);
-  opacity: 0.6;
-}
-.panel-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 6px 14px;
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 11.5px;
-  color: #7E9A86;
-}
-footer {
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  max-width: 640px;
-  margin: 28px auto 0;
-  padding: 16px 20px 28px;
-  border-top: 1px solid #D9E3D3;
-  font-size: 12px;
-  color: var(--muted);
-}
-.conn-msg {
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 12.5px;
-  margin-top: 10px;
-  min-height: 16px;
-}
-.conn-msg.error { color: var(--red); }
-.conn-msg.ok { color: #2D6A4F; }
+  :root {
+    --forest-900: #0B1F15;
+    --forest-800: #11291C;
+    --forest-700: #183926;
+    --forest-600: #21503A;
+    --moss: #5E8C61;
+    --sage: #A9C9A4;
+    --mint: #CDEBB8;
+    --sand: #F5F3EC;
+    --paper: #FFFFFF;
+    --ink: #13221A;
+    --muted: #61736A;
+    --line: #E2E8DD;
+    --temp: #D9783C;
+    --hum: #3E8FB0;
+    --lum: #D9A91F;
+    --red: #B4432F;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --serif: Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--sand);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 
-@media (max-width: 420px) {
-  header { padding-top: 22px; }
-  h1 { font-size: 23px; }
-  main { padding-left: 12px; padding-right: 12px; }
-  .panel { padding: 14px 12px 6px; }
-  .row { padding: 14px 12px; }
-  .row .value { font-size: 24px; }
-}
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    background:
+      radial-gradient(900px 380px at 85% -10%, rgba(94,140,97,.45), transparent 60%),
+      radial-gradient(600px 300px at 0% 110%, rgba(33,80,58,.9), transparent 70%),
+      linear-gradient(160deg, var(--forest-800), var(--forest-900));
+    color: #fff;
+    padding: calc(env(safe-area-inset-top, 0px) + 26px) 20px 96px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='1'%3E%3Cpath d='M-10 40 Q40 10 90 40 T190 40'/%3E%3Cpath d='M-10 70 Q40 40 90 70 T190 70'/%3E%3Cpath d='M-10 100 Q40 70 90 100 T190 100'/%3E%3Cpath d='M-10 130 Q40 100 90 130 T190 130'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; max-width: 880px; margin: 0 auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-bottom: 38px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: rgba(205,235,184,.12);
+    border: 1px solid rgba(205,235,184,.25);
+    display: grid; place-items: center;
+  }
+  .brand-mark svg { width: 21px; height: 21px; }
+  .brand-name { font-size: 13px; font-weight: 700; letter-spacing: .14em; }
+  .brand-sub { font-size: 11.5px; color: var(--sage); margin-top: 1px; }
+
+  .status {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 7px 14px 7px 12px; border-radius: 999px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.14);
+    font-size: 12px; font-weight: 600; letter-spacing: .03em;
+    color: #DCE8DC; white-space: nowrap;
+    backdrop-filter: blur(6px);
+  }
+  .status .dot {
+    position: relative; width: 8px; height: 8px; border-radius: 50%;
+    background: #8A9A90;
+  }
+  .status.live { color: var(--mint); border-color: rgba(205,235,184,.35); }
+  .status.live .dot { background: var(--mint); }
+  .status.live .dot::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: var(--mint); opacity: .55;
+    animation: pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: .55; }
+    100% { transform: scale(2.8); opacity: 0; }
+  }
+
+  .eyebrow {
+    font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--sage); font-weight: 600; margin-bottom: 10px;
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-family: var(--serif);
+    font-size: clamp(28px, 6vw, 42px);
+    line-height: 1.12; font-weight: 400; letter-spacing: -.01em;
+    max-width: 18ch;
+  }
+  .sub {
+    margin: 0; font-size: 14.5px; line-height: 1.6;
+    color: #B9CDBE; max-width: 52ch;
+  }
+
+  /* ---------- CARDS ---------- */
+  main {
+    position: relative; z-index: 2;
+    max-width: 880px; margin: -62px auto 0; padding: 0 20px;
+  }
+  .grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .row {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+    box-shadow: 0 1px 2px rgba(17,41,28,.04), 0 12px 28px -14px rgba(17,41,28,.22);
+    display: flex; flex-direction: column;
+    transition: opacity .3s ease, transform .3s ease;
+    overflow: hidden;
+  }
+  .row::before {
+    content: ""; position: absolute; left: 0; top: 0; right: 0; height: 3px;
+    background: var(--accent);
+  }
+  .row.temp { --accent: var(--temp); --accent-soft: rgba(217,120,60,.12); }
+  .row.hum  { --accent: var(--hum);  --accent-soft: rgba(62,143,176,.12); }
+  .row.lum  { --accent: var(--lum);  --accent-soft: rgba(217,169,31,.14); }
+
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .label {
+    font-size: 12.5px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: var(--accent-soft);
+    display: grid; place-items: center;
+  }
+  .icon svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .value {
+    font-family: var(--serif);
+    font-size: 54px; line-height: 1; font-weight: 400;
+    letter-spacing: -.02em; color: var(--ink);
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .value .unit {
+    font-family: var(--sans);
+    font-size: 20px; font-weight: 500; margin-left: 3px; color: var(--muted);
+    letter-spacing: 0;
+  }
+  .tag {
+    display: inline-flex; align-self: flex-start; align-items: center; gap: 6px;
+    margin-top: 14px; padding: 4px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--ink);
+    font-size: 12px; font-weight: 600;
+  }
+  .tag::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+
+  .meter { margin-top: 20px; }
+  .track {
+    position: relative; height: 6px; border-radius: 99px;
+    background: #ECF0E8;
+  }
+  .fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    border-radius: 99px; background: var(--accent);
+    transition: width .8s cubic-bezier(.2,.8,.2,1);
+  }
+  .scale {
+    display: flex; justify-content: space-between;
+    margin-top: 7px; font-size: 11px; color: #8A998F;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .row.stale .value { color: #A5B2AA; }
+  .row.stale .value .unit { color: #B8C3BC; }
+  .row.stale .fill { width: 0% !important; }
+  .row.stale .tag { background: #EEF1EB; color: var(--muted); }
+  .row.stale .tag::before { background: #B8C3BC; }
+  .row.stale::before { background: #D6DED2; }
+  .row.stale .icon { background: #EEF1EB; }
+  .row.stale .icon svg { stroke: #9AA9A0; }
+
+  /* ---------- INFO BAR ---------- */
+  .infobar {
+    margin-top: 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px; color: var(--muted);
+  }
+  .info-item { display: flex; align-items: center; gap: 8px; }
+  .info-item svg { width: 15px; height: 15px; stroke: var(--moss); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .info-item strong { color: var(--ink); font-weight: 600; }
+
+  .conn-msg {
+    margin: 12px 4px 0; min-height: 16px;
+    font-size: 12.5px; color: var(--muted);
+  }
+  .conn-msg.error { color: var(--red); }
+  .conn-msg.ok { color: #2D6A4F; }
+
+  footer {
+    max-width: 880px; margin: 34px auto 0; padding: 18px 20px 32px;
+    border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--muted); line-height: 1.6;
+    display: flex; align-items: center; gap: 10px;
+  }
+  footer svg { width: 16px; height: 16px; stroke: var(--moss); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding-bottom: 88px; }
+    .topbar { margin-bottom: 28px; }
+    .row { padding: 18px; }
+    .card-head { margin-bottom: 14px; }
+    .value { font-size: 48px; }
+  }
+  @media (max-width: 420px) {
+    .brand-sub { display: none; }
+  }
 </style>
 </head>
 <body>
-<div class="blob"></div>
 
-<header>
-  <div class="eyebrow">EMA · IFRS Veranópolis</div>
-  <h1>Estação de Monitoramento Ambiental</h1>
-  <p class="sub">Leituras de temperatura, umidade e luminosidade enviadas pelo protótipo montado no campus.</p>
-</header>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#CDEBB8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c2-4 5-7 9-9"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">EMA</div>
+          <div class="brand-sub">IFRS Veranópolis</div>
+        </div>
+      </div>
 
-<main>
-  <div class="panel">
-    <div class="panel-top">
       <div class="status" id="statusEl">
         <span class="dot"></span>
         <span id="statusText">Desconectado</span>
       </div>
-      <div class="source" id="topicLabel">ema / campus</div>
     </div>
 
-    <div class="row stale" id="rowTemp">
-      <span class="label">Temperatura</span>
-      <span class="value"><span id="valTemp">—</span><span class="unit">°C</span></span>
+    <div class="eyebrow">Monitoramento em tempo real</div>
+    <h1>Estação de Monitoramento Ambiental</h1>
+    <p class="sub">Leituras de temperatura, umidade e luminosidade enviadas pelo protótipo montado no campus.</p>
+  </div>
+</div>
+
+<main>
+  <div class="grid">
+
+    <div class="row temp stale" id="rowTemp">
+      <div class="card-head">
+        <span class="label">Temperatura</span>
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M14 14.76V4a2 2 0 0 0-4 0v10.76a4 4 0 1 0 4 0z"/><path d="M12 9v8"/></svg></span>
+      </div>
+      <div class="value"><span id="valTemp">—</span><span class="unit">°C</span></div>
+      <span class="tag" id="tagTemp">Aguardando</span>
+      <div class="meter">
+        <div class="track"><div class="fill" id="fillTemp"></div></div>
+        <div class="scale"><span>0°</span><span>25°</span><span>50°</span></div>
+      </div>
     </div>
 
-    <div class="row stale" id="rowHum">
-      <span class="label">Umidade</span>
-      <span class="value"><span id="valHum">—</span><span class="unit">%</span></span>
+    <div class="row hum stale" id="rowHum">
+      <div class="card-head">
+        <span class="label">Umidade</span>
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.2 6 10.5a6 6 0 0 1-12 0C6 9.2 12 3 12 3z"/><path d="M9.5 14.5a2.7 2.7 0 0 0 2.5 2"/></svg></span>
+      </div>
+      <div class="value"><span id="valHum">—</span><span class="unit">%</span></div>
+      <span class="tag" id="tagHum">Aguardando</span>
+      <div class="meter">
+        <div class="track"><div class="fill" id="fillHum"></div></div>
+        <div class="scale"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
     </div>
 
-    <div class="row stale" id="rowLum">
-      <span class="label">Luminosidade</span>
-      <span class="value"><span id="valLum">—</span><span class="unit">%</span></span>
+    <div class="row lum stale" id="rowLum">
+      <div class="card-head">
+        <span class="label">Luminosidade</span>
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
+      </div>
+      <div class="value"><span id="valLum">—</span><span class="unit">%</span></div>
+      <span class="tag" id="tagLum">Aguardando</span>
+      <div class="meter">
+        <div class="track"><div class="fill" id="fillLum"></div></div>
+        <div class="scale"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
     </div>
 
-    <div class="panel-foot">
+  </div>
+
+  <div class="infobar">
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
       <span id="lastUpdate">Nenhuma leitura recebida</span>
-      <span id="brokerLabel">broker.emqx.io</span>
+    </div>
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12.5" r="1.2"/></svg>
+      <span>Broker: <strong id="brokerLabel">broker.emqx.io</strong></span>
+    </div>
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>Tópico: <strong id="topicLabel">ema / campus</strong></span>
     </div>
   </div>
 
@@ -236,7 +333,8 @@ footer {
 </main>
 
 <footer>
-  Desenvolvido por Arthur Malinski, Bernardo Damian e Bruno Balen — IFRS Veranópolis.
+  <svg viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c2-4 5-7 9-9"/></svg>
+  <span>Desenvolvido por Arthur Malinski, Bernardo Damian e Bruno Balen — IFRS Veranópolis.</span>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.3.4/mqtt.min.js"></script>
@@ -244,15 +342,21 @@ footer {
 (function () {
   "use strict";
 
-  // Configuração MQTT
+  // ============================
+  // CONFIGURAÇÃO FIXA DA EMA
+  // ============================
+  // Broker MQTT público e gratuito da EMQX.
+  // Site: WSS (WebSocket seguro) / ESP32: MQTT ou MQTT TLS.
   var BROKER_HOST = "broker.emqx.io";
   var BROKER_PORT = 8084;
   var BROKER_PATH = "/mqtt";
 
-  // Deve ser igual ao prefixo utilizado no código da ESP8266.
+  // Use um prefixo exclusivo para evitar colisões no broker público.
   var TOPIC_PREFIX = "ema/ifrs-veranopolis/estacao-01";
 
+  // O site conecta automaticamente ao abrir.
   var AUTO_CONNECT = true;
+
   var client = null;
   var reconnectTimer = null;
 
@@ -264,18 +368,9 @@ footer {
   var connMsg = document.getElementById("connMsg");
 
   var rows = {
-    temperatura: {
-      row: document.getElementById("rowTemp"),
-      val: document.getElementById("valTemp")
-    },
-    umidade: {
-      row: document.getElementById("rowHum"),
-      val: document.getElementById("valHum")
-    },
-    luminosidade: {
-      row: document.getElementById("rowLum"),
-      val: document.getElementById("valLum")
-    }
+    temperatura: { row: document.getElementById("rowTemp"), val: document.getElementById("valTemp") },
+    umidade: { row: document.getElementById("rowHum"), val: document.getElementById("valHum") },
+    luminosidade: { row: document.getElementById("rowLum"), val: document.getElementById("valLum") }
   };
 
   function setStatus(connected, text) {
@@ -288,10 +383,10 @@ footer {
     connMsg.className = "conn-msg" + (kind ? " " + kind : "");
   }
 
-  function formatTime(date) {
-    var hh = String(date.getHours()).padStart(2, "0");
-    var mm = String(date.getMinutes()).padStart(2, "0");
-    var ss = String(date.getSeconds()).padStart(2, "0");
+  function formatTime(d) {
+    var hh = String(d.getHours()).padStart(2, "0");
+    var mm = String(d.getMinutes()).padStart(2, "0");
+    var ss = String(d.getSeconds()).padStart(2, "0");
     return hh + ":" + mm + ":" + ss;
   }
 
@@ -300,29 +395,33 @@ footer {
     if (!entry) return;
 
     var num = parseFloat(value);
-
-    // Inverte a escala da luminosidade.
-    // Esta conversão pressupõe que o valor recebido é uma
-    // porcentagem entre 0 e 100, com sombra = valor maior.
-    if (key === "luminosidade" && !isNaN(num)) {
-      num = Math.max(0, Math.min(100, 100 - num));
-    }
-
     entry.val.textContent = isNaN(num)
       ? value
-      : num.toLocaleString("pt-BR", {
-          maximumFractionDigits: 1
-        });
+      : num.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
     entry.row.classList.remove("stale");
-    lastUpdate.textContent =
-      "Última leitura às " + formatTime(new Date());
+    lastUpdate.textContent = "Última leitura às " + formatTime(new Date());
   }
 
   function markStale() {
-    Object.keys(rows).forEach(function (key) {
-      rows[key].row.classList.add("stale");
+    Object.keys(rows).forEach(function (k) {
+      rows[k].row.classList.add("stale");
     });
+  }
+
+  function disconnect() {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+
+    if (client) {
+      try { client.end(true); } catch (e) {}
+      client = null;
+    }
+
+    setStatus(false, "Desconectado");
+    markStale();
   }
 
   function scheduleReconnect() {
@@ -336,37 +435,30 @@ footer {
 
   function connect() {
     if (typeof mqtt === "undefined") {
-      setMsg(
-        "A biblioteca MQTT não carregou. Verifique a internet.",
-        "error"
-      );
+      setMsg("Biblioteca MQTT não carregou. Verifique a conexão com a internet.", "error");
       setStatus(false, "Erro");
       return;
     }
 
-    if (client && (client.connected || client.reconnecting)) {
-      return;
-    }
+    if (client && (client.connected || client.reconnecting)) return;
 
     setStatus(false, "Conectando...");
-    setMsg("Conectando ao servidor MQTT...", "");
+    setMsg("Conectando ao servidor...", "");
     topicLabel.textContent = TOPIC_PREFIX;
     brokerLabel.textContent = BROKER_HOST;
 
-    var url =
-      "wss://" + BROKER_HOST + ":" + BROKER_PORT + BROKER_PATH;
+    var url = "wss://" + BROKER_HOST + ":" + BROKER_PORT + BROKER_PATH;
 
     try {
       client = mqtt.connect(url, {
         clean: true,
-        connectTimeout: 10000,
+        connectTimeout: 8000,
         reconnectPeriod: 4000,
-        clientId:
-          "ema_web_" + Math.random().toString(16).slice(2, 10)
+        clientId: "ema_web_" + Math.random().toString(16).slice(2, 10)
       });
     } catch (err) {
-      setMsg("Falha ao iniciar conexão: " + err.message, "error");
-      setStatus(false, "Erro");
+      setMsg("Não foi possível iniciar a conexão: " + err.message, "error");
+      setStatus(false, "Erro de conexão");
       scheduleReconnect();
       return;
     }
@@ -381,12 +473,12 @@ footer {
         TOPIC_PREFIX + "/luminosidade"
       ];
 
-      client.subscribe(topics, { qos: 0 }, function (err) {
-        if (err) {
-          setMsg("Conectou, mas não conseguiu assinar os tópicos.", "error");
-        } else {
-          setMsg("Conectado. Aguardando leituras dos sensores.", "ok");
-        }
+      topics.forEach(function (topic) {
+        client.subscribe(topic, { qos: 0 }, function (err) {
+          if (err) {
+            setMsg("Erro ao assinar " + topic, "error");
+          }
+        });
       });
     });
 
@@ -405,8 +497,7 @@ footer {
     client.on("error", function (err) {
       setStatus(false, "Erro de conexão");
       setMsg(
-        "Erro MQTT: " +
-        (err && err.message ? err.message : "falha de conexão"),
+        "Erro: " + (err && err.message ? err.message : "falha na conexão com o broker"),
         "error"
       );
     });
@@ -419,17 +510,58 @@ footer {
     client.on("reconnect", function () {
       setStatus(false, "Reconectando...");
     });
-
-    client.on("offline", function () {
-      setStatus(false, "Offline");
-    });
   }
 
+  // Conecta automaticamente quando a página termina de carregar.
   if (AUTO_CONNECT) {
     window.addEventListener("load", function () {
       setTimeout(connect, 250);
     });
   }
+})();
+</script>
+
+<!-- Apenas visual: barras e rótulos qualitativos dos cards (não interfere no MQTT). -->
+<script>
+(function () {
+  "use strict";
+
+  var cfg = [
+    { val: "valTemp", fill: "fillTemp", tag: "tagTemp", row: "rowTemp", min: 0, max: 50,
+      levels: [[10, "Frio"], [18, "Fresco"], [27, "Agradável"], [33, "Quente"], [Infinity, "Muito quente"]] },
+    { val: "valHum", fill: "fillHum", tag: "tagHum", row: "rowHum", min: 0, max: 100,
+      levels: [[30, "Seco"], [60, "Confortável"], [80, "Úmido"], [Infinity, "Muito úmido"]] },
+    { val: "valLum", fill: "fillLum", tag: "tagLum", row: "rowLum", min: 0, max: 100,
+      levels: [[10, "Escuro"], [40, "Penumbra"], [75, "Claro"], [Infinity, "Muito claro"]] }
+  ];
+
+  cfg.forEach(function (c) {
+    var valEl = document.getElementById(c.val);
+    var fillEl = document.getElementById(c.fill);
+    var tagEl = document.getElementById(c.tag);
+    var rowEl = document.getElementById(c.row);
+
+    function refresh() {
+      if (rowEl.classList.contains("stale")) {
+        tagEl.textContent = "Sem sinal";
+        if (valEl.textContent.trim() === "—") tagEl.textContent = "Aguardando";
+        return;
+      }
+      var num = parseFloat(valEl.textContent.replace(/\./g, "").replace(",", "."));
+      if (isNaN(num)) return;
+
+      var pct = (num - c.min) / (c.max - c.min) * 100;
+      fillEl.style.width = Math.max(0, Math.min(100, pct)) + "%";
+
+      for (var i = 0; i < c.levels.length; i++) {
+        if (num < c.levels[i][0]) { tagEl.textContent = c.levels[i][1]; break; }
+      }
+    }
+
+    new MutationObserver(refresh).observe(valEl, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(refresh).observe(rowEl, { attributes: true, attributeFilter: ["class"] });
+    refresh();
+  });
 })();
 </script>
 </body>
