@@ -241,6 +241,55 @@
   @media (max-width: 420px) {
     .brand-sub { display: none; }
   }
+
+  /* ---------- HISTÓRICO DE TEMPERATURA ---------- */
+  .history {
+    margin-top: 18px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(17,41,28,.04), 0 12px 28px -14px rgba(17,41,28,.16);
+  }
+  .history-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .history-title {
+    margin: 0; font-family: var(--serif); font-size: 24px;
+    font-weight: 400; color: var(--ink);
+  }
+  .history-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; }
+  .history-controls { display: flex; gap: 7px; }
+  .history-controls button {
+    border: 1px solid var(--line); background: #F7F9F4; color: var(--muted);
+    border-radius: 999px; padding: 7px 12px; font: 600 12px var(--sans);
+    cursor: pointer; transition: all .2s ease;
+  }
+  .history-controls button.active {
+    background: var(--forest-700); border-color: var(--forest-700); color: white;
+  }
+  .history-average {
+    display: flex; align-items: baseline; gap: 7px; margin: 16px 0 4px;
+  }
+  .history-average strong {
+    font: 400 34px/1 var(--serif); color: var(--temp);
+    font-variant-numeric: tabular-nums;
+  }
+  .history-average span { color: var(--muted); font-size: 12px; }
+  .chart-wrap { position: relative; height: 230px; margin-top: 10px; }
+  .history-empty {
+    display: none; min-height: 180px; align-items: center; justify-content: center;
+    text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6;
+    padding: 20px;
+  }
+  .history-note { margin: 10px 0 0; color: #849188; font-size: 11px; line-height: 1.5; }
+  @media (max-width: 520px) {
+    .history { padding: 17px; }
+    .history-title { font-size: 22px; }
+    .chart-wrap { height: 200px; }
+  }
+
 </style>
 </head>
 <body>
@@ -329,6 +378,32 @@
     </div>
   </div>
 
+
+  <section class="history" aria-labelledby="historyTitle">
+    <div class="history-head">
+      <div>
+        <h2 class="history-title" id="historyTitle">Histórico de temperatura</h2>
+        <p class="history-subtitle">Média das medições recebidas pela estação</p>
+      </div>
+      <div class="history-controls" aria-label="Período do histórico">
+        <button type="button" class="active" data-days="7">7 dias</button>
+        <button type="button" data-days="14">14 dias</button>
+      </div>
+    </div>
+    <div class="history-average">
+      <strong id="periodAverage">— °C</strong>
+      <span id="periodLabel">média do período</span>
+    </div>
+    <div class="chart-wrap" id="chartWrap">
+      <canvas id="temperatureChart" role="img" aria-label="Gráfico da média diária de temperatura"></canvas>
+    </div>
+    <div class="history-empty" id="historyEmpty">
+      Ainda não há histórico suficiente.<br>
+      As médias aparecerão conforme a estação enviar novas leituras.
+    </div>
+    <p class="history-note">As médias são calculadas a partir das leituras recebidas enquanto este site está aberto neste navegador.</p>
+  </section>
+
   <div id="connMsg" class="conn-msg" role="status" aria-live="polite"></div>
 </main>
 
@@ -337,6 +412,7 @@
   <span>Desenvolvido por Arthur Malinski, Bernardo Damian e Bruno Balen — IFRS Veranópolis.</span>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.3.4/mqtt.min.js"></script>
 <script>
 (function () {
@@ -487,6 +563,7 @@
 
       if (topic === TOPIC_PREFIX + "/temperatura") {
         updateReading("temperatura", value);
+        saveTemperatureReading(value);
       } else if (topic === TOPIC_PREFIX + "/umidade") {
         updateReading("umidade", value);
       } else if (topic === TOPIC_PREFIX + "/luminosidade") {
@@ -564,5 +641,187 @@
   });
 })();
 </script>
+
+<script>
+(function () {
+  "use strict";
+
+  // Guarda somente totais e quantidades por dia, evitando armazenar milhares
+  // de mensagens individuais. O histórico fica neste navegador.
+  var STORAGE_KEY = "ema_temperature_daily_v1";
+  var selectedDays = 7;
+  var chart = null;
+
+  function localDateKey(date) {
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, "0");
+    var d = String(date.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+  }
+
+  function loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveTemperatureReading(rawValue) {
+    var value = Number.parseFloat(rawValue);
+    if (!Number.isFinite(value) || value < -20 || value > 60) return;
+
+    var history = loadHistory();
+    var key = localDateKey(new Date());
+
+    if (!history[key]) history[key] = { sum: 0, count: 0 };
+    history[key].sum += value;
+    history[key].count += 1;
+
+    // Mantém os últimos 30 dias.
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    var cutoffKey = localDateKey(cutoff);
+    Object.keys(history).forEach(function (dateKey) {
+      if (dateKey < cutoffKey) delete history[dateKey];
+    });
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    } catch (e) {
+      console.warn("Não foi possível salvar o histórico local da EMA.", e);
+    }
+    renderHistory();
+  }
+
+  function renderHistory() {
+    var canvas = document.getElementById("temperatureChart");
+    var empty = document.getElementById("historyEmpty");
+    var wrap = document.getElementById("chartWrap");
+    var averageEl = document.getElementById("periodAverage");
+    if (!canvas || typeof Chart === "undefined") return;
+
+    var history = loadHistory();
+    var labels = [];
+    var values = [];
+    var total = 0;
+    var totalCount = 0;
+
+    for (var i = selectedDays - 1; i >= 0; i--) {
+      var day = new Date();
+      day.setHours(12, 0, 0, 0);
+      day.setDate(day.getDate() - i);
+      var key = localDateKey(day);
+      var item = history[key];
+      labels.push(day.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }));
+
+      if (item && item.count > 0) {
+        var dailyAverage = item.sum / item.count;
+        values.push(Number(dailyAverage.toFixed(1)));
+        total += item.sum;
+        totalCount += item.count;
+      } else {
+        values.push(null);
+      }
+    }
+
+    averageEl.textContent = totalCount
+      ? (total / totalCount).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " °C"
+      : "— °C";
+
+    var hasData = values.some(function (v) { return v !== null; });
+    empty.style.display = hasData ? "none" : "flex";
+    wrap.style.display = hasData ? "block" : "none";
+    if (!hasData) {
+      if (chart) { chart.destroy(); chart = null; }
+      return;
+    }
+
+    var context = canvas.getContext("2d");
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = values;
+      chart.update();
+      return;
+    }
+
+    var gradient = context.createLinearGradient(0, 0, 0, 230);
+    gradient.addColorStop(0, "rgba(217,120,60,0.24)");
+    gradient.addColorStop(1, "rgba(217,120,60,0.015)");
+
+    chart = new Chart(context, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Temperatura média",
+          data: values,
+          borderColor: "#D9783C",
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: "#D9783C",
+          pointBorderColor: "#FFFFFF",
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.36,
+          spanGaps: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 650, easing: "easeOutQuart" },
+        interaction: { intersect: false, mode: "index" },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#11291C",
+            padding: 11,
+            displayColors: false,
+            callbacks: {
+              label: function (context) {
+                return context.parsed.y === null ? "Sem leituras" : context.parsed.y.toLocaleString("pt-BR") + " °C";
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: "#849188", maxRotation: 0, autoSkip: true, maxTicksLimit: 7 },
+            border: { display: false }
+          },
+          y: {
+            grid: { color: "rgba(226,232,221,0.8)" },
+            ticks: {
+              color: "#849188",
+              callback: function (value) { return value + "°"; }
+            },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  document.querySelectorAll(".history-controls button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      selectedDays = Number(button.getAttribute("data-days"));
+      document.querySelectorAll(".history-controls button").forEach(function (b) {
+        b.classList.toggle("active", b === button);
+      });
+      renderHistory();
+    });
+  });
+
+  // Mostra também o histórico salvo em visitas anteriores neste navegador.
+  document.addEventListener("DOMContentLoaded", renderHistory);
+  window.addEventListener("load", renderHistory);
+  window.saveTemperatureReading = saveTemperatureReading;
+})();
+</script>
+
 </body>
 </html>
